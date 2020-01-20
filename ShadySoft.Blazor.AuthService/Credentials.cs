@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace ShadySoft.Blazor.AuthService
+namespace ShadySoft.Blazor.SignInService
 {
     public class Credentials
     {

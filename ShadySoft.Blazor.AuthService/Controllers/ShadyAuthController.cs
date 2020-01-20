@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ShadySoft.Blazor.AuthService.Dtos;
+using ShadySoft.Blazor.SignInService.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -10,22 +11,24 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ShadySoft.Blazor.AuthService.Controllers
+namespace ShadySoft.Blazor.SignInService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ShadyAuthController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<TUser> _signInManager;
         private readonly ILogger<ShadyAuthController> _logger;
         private readonly IDataProtectionProvider _dataProtectionProvider;
-        private const int responseTimeoutInSeconds = 5;
+        private readonly UserManager<TUser> _userManager;
+        private const int responseTimeoutInSeconds = 60;
 
-        public ShadyAuthController(SignInManager<IdentityUser> signInManager, ILogger<ShadyAuthController> logger, IDataProtectionProvider dataProtectionProvider)
+        public ShadyAuthController(SignInManager<TUser> signInManager, ILogger<ShadyAuthController> logger, IDataProtectionProvider dataProtectionProvider, UserManager<TUser> userManager)
         {
             _signInManager = signInManager;
             _logger = logger;
             _dataProtectionProvider = dataProtectionProvider;
+            _userManager = userManager;
         }
 
         [HttpPost("login")]
@@ -70,7 +73,7 @@ namespace ShadySoft.Blazor.AuthService.Controllers
                 return BadRequest(AuthServiceLoginResults.Failed);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(loginModel.UserName, loginModel.Password, loginModel.RememberMe, lockoutOnFailure: true);
+            var result = await _signInManager.PasswordSignInAsync(loginModel.UserName, loginModel.Password, loginModel.RememberMe, loginModel.LockoutOnFailure);
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
@@ -107,10 +110,48 @@ namespace ShadySoft.Blazor.AuthService.Controllers
             return BadRequest(BuildEncodedAuthResponse(errorCode));
         }
 
-        [HttpGet("test")]
-        public IActionResult Test()
+        [HttpPost("logout")]
+        public async Task<IActionResult> LogOut()
         {
-            return Ok("Success");
+            await _signInManager.SignOutAsync();
+            
+            return Ok();
+        }
+
+        [HttpPost("referesh")]
+        public async Task<IActionResult> RefreshSignIn(string encodedRefreshDto)
+        {
+            var protector = _dataProtectionProvider.CreateProtector("refesh");
+            var decodedRefreshDto = protector.Unprotect(encodedRefreshDto);
+            RefreshSignInDto refreshDto;
+            try
+            {
+                refreshDto = JsonSerializer.Deserialize<RefreshSignInDto>(decodedRefreshDto);
+            }
+            catch (CryptographicException)
+            {
+                _logger.LogWarning("Invalid refresh sign in data submitted");
+                return BadRequest();
+            }
+
+            if (refreshDto.ExpirationUtc < DateTime.UtcNow)
+            {
+                _logger.LogWarning("Expired refresh sign in data submitted");
+                return BadRequest();
+            }
+
+            var user = await _userManager.FindByNameAsync(refreshDto.UserName);
+
+            try
+            {
+                await _signInManager.RefreshSignInAsync(user);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+
+            return Ok();
         }
 
         private string BuildEncodedAuthResponse(string result)

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29521.150
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShadySoft.Blazor.AuthService", "ShadySoft.Blazor.AuthService\ShadySoft.Blazor.AuthService.csproj", "{DF7F1164-A7C6-4839-8499-3E1A4902167C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShadySoft.Blazor.SignInService", "ShadySoft.Blazor.AuthService\ShadySoft.Blazor.SignInService.csproj", "{DF7F1164-A7C6-4839-8499-3E1A4902167C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

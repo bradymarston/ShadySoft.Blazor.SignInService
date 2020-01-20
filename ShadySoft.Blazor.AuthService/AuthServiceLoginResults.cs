@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ShadySoft.Blazor.AuthService
+namespace ShadySoft.Blazor.SignInService
 {
     internal class AuthServiceLoginResults
     {
