@@ -6,6 +6,7 @@
     <Version>1.0.0</Version>
     <Authors>Brady Marston</Authors>
     <Company>ShadySoft</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 
