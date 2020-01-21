@@ -11,9 +11,9 @@ using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class AuthServiceCollectionExtensions
+    public static class ShadySoftBlazorSignInServiceCollectionExtensions
     {
-        public static IdentityBuilder AddBlazorIdentity<TUser, TRole>(this IServiceCollection services) where TUser : class where TRole : class
+        public static IdentityBuilder AddBlazorIdentity<TUser, TRole>(this IServiceCollection services, Action<IdentityOptions> setupAction) where TUser : class where TRole : class
         {
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<TUser>>();
             services.AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp => {
@@ -24,7 +24,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<SignInService<TUser>>();
             services.AddScoped<IUserServiceAccessor, UserServiceAccessor<TUser>>();
 
-            return services.AddIdentity<TUser, TRole>();
+            return services.AddIdentity<TUser, TRole>(setupAction);
         }
+
+        public static IdentityBuilder AddBlazorIdentity<TUser, TRole>(this IServiceCollection services) where TUser : class where TRole : class
+        {
+            return services.AddBlazorIdentity<TUser, TRole>(setupAction: null);
+        }
+
     }
 }
