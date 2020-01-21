@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;
 using ShadySoft.Blazor.SignInService;
+using ShadySoft.Blazor.SignInService.Controllers;
+using ShadySoft.Blazor.SignInService.Interfaces;
+using ShadySoft.Blazor.SignInService.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.AddScoped<SignInService<TUser>>();
+            services.AddScoped<IUserServiceAccessor, UserServiceAccessor<TUser>>();
 
             return services.AddIdentity<TUser, TRole>();
         }

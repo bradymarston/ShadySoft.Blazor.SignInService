@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <Version>0.0.8</Version>
+    <Version>0.0.10</Version>
   </PropertyGroup>
 
 

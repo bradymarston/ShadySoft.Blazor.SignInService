@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ShadySoft.Blazor.SignInService.Dtos;
+using ShadySoft.Blazor.SignInService.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -17,18 +18,16 @@ namespace ShadySoft.Blazor.SignInService.Controllers
     [ApiController]
     public class ShadyAuthController : ControllerBase
     {
-        private readonly SignInManager<TUser> _signInManager;
+        private readonly IUserServiceAccessor _userServices;
         private readonly ILogger<ShadyAuthController> _logger;
         private readonly IDataProtectionProvider _dataProtectionProvider;
-        private readonly UserManager<TUser> _userManager;
         private const int responseTimeoutInSeconds = 60;
 
-        public ShadyAuthController(SignInManager<TUser> signInManager, ILogger<ShadyAuthController> logger, IDataProtectionProvider dataProtectionProvider, UserManager<TUser> userManager)
+        public ShadyAuthController(IUserServiceAccessor userServices, ILogger<ShadyAuthController> logger, IDataProtectionProvider dataProtectionProvider)
         {
-            _signInManager = signInManager;
+            _userServices = userServices;
             _logger = logger;
             _dataProtectionProvider = dataProtectionProvider;
-            _userManager = userManager;
         }
 
         [HttpPost("login")]
@@ -73,7 +72,7 @@ namespace ShadySoft.Blazor.SignInService.Controllers
                 return BadRequest(AuthServiceLoginResults.Failed);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(loginModel.UserName, loginModel.Password, loginModel.RememberMe, loginModel.LockoutOnFailure);
+            var result = await _userServices.PasswordSignInAsync(loginModel.UserName, loginModel.Password, loginModel.RememberMe, loginModel.LockoutOnFailure);
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
@@ -113,7 +112,7 @@ namespace ShadySoft.Blazor.SignInService.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> LogOut()
         {
-            await _signInManager.SignOutAsync();
+            await _userServices.SignOutAsync();
             
             return Ok();
         }
@@ -140,11 +139,9 @@ namespace ShadySoft.Blazor.SignInService.Controllers
                 return BadRequest();
             }
 
-            var user = await _userManager.FindByNameAsync(refreshDto.UserName);
-
             try
             {
-                await _signInManager.RefreshSignInAsync(user);
+                await _userServices.RefreshSignInAsync(refreshDto.UserName);
             }
             catch
             {

@@ -47,7 +47,7 @@ namespace ShadySoft.Blazor.SignInService
         public Task<SignInResult> SignInAsync(Credentials credentials, bool lockoutOnFailure = true)
         {
             var loginDto = LoginDto.FromCredentials(credentials, lockoutOnFailure, DateTime.UtcNow + TimeSpan.FromSeconds(loginExpirationSeconds));
-            var callback = new SignInCallback(loginDto, this);
+            var callback = new SignInCallback<TUser>(loginDto, this);
 
             var protector = _dataProtectionProvider.CreateProtector("login");
             var encodedCredentials = protector.Protect(JsonSerializer.Serialize(loginDto));
@@ -58,7 +58,7 @@ namespace ShadySoft.Blazor.SignInService
         }
         public Task SignOutAsync()
         {
-            var callback = new SignOutCallback(this);
+            var callback = new SignOutCallback<TUser>(this);
 
             _jSRuntime.InvokeVoidAsync("shadyAuthHelpers.logout", DotNetObjectReference.Create(callback));
 
@@ -67,7 +67,7 @@ namespace ShadySoft.Blazor.SignInService
 
         public Task RefreshSignInAsync(string userName)
         {
-            var callback = new RefreshSignInCallback(userName, this);            
+            var callback = new RefreshSignInCallback<TUser>(userName, this);            
 
             var dto = new RefreshSignInDto() { UserName = userName, ExpirationUtc = DateTime.UtcNow + TimeSpan.FromSeconds(loginExpirationSeconds) };
             var protector = _dataProtectionProvider.CreateProtector("login");
@@ -119,11 +119,11 @@ namespace ShadySoft.Blazor.SignInService
             return response.Result;
         }
 
-        internal class SignInCallback
+        internal class SignInCallback<TUser> where TUser : class
         {
-            private readonly SignInService _signInService;
+            private readonly SignInService<TUser> _signInService;
 
-            public SignInCallback(LoginDto loginDto, SignInService signInService)
+            public SignInCallback(LoginDto loginDto, SignInService<TUser> signInService)
             {
                 Credentials = loginDto;
                 _signInService = signInService;
@@ -153,11 +153,11 @@ namespace ShadySoft.Blazor.SignInService
             }
         }
 
-        internal class SignOutCallback
+        internal class SignOutCallback<TUser> where TUser : class
         {
-            private readonly SignInService _signInService;
+            private readonly SignInService<TUser> _signInService;
 
-            public SignOutCallback(SignInService signInService)
+            public SignOutCallback(SignInService<TUser> signInService)
             {
                 _signInService = signInService;
             }
@@ -169,11 +169,11 @@ namespace ShadySoft.Blazor.SignInService
                 _signInService.FinishServerSignOut(ResultSource);
             }
         }
-        internal class RefreshSignInCallback
+        internal class RefreshSignInCallback<TUser> where TUser : class
         {
-            private readonly SignInService _signInService;
+            private readonly SignInService<TUser> _signInService;
 
-            public RefreshSignInCallback(string userName, SignInService signInService)
+            public RefreshSignInCallback(string userName, SignInService<TUser> signInService)
             {
                 _signInService = signInService;
                 UserName = userName;
