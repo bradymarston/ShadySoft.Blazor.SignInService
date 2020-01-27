@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ShadySoft.Blazor.SignInService.Dtos
 {
-    public class RefreshSignInDto
+    internal class RefreshSignInDto
     {
         public string UserName { get; set; }
         public DateTime ExpirationUtc { get; set; }

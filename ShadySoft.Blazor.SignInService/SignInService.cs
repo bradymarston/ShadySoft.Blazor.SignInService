@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ShadySoft.Blazor.SignInService
 {
-    public class SignInService<TUser> where TUser : class
+    public class SignInService<TUser> : ISignInService where TUser : class
     {
         private readonly IHostEnvironmentAuthenticationStateProvider _serverAuthenticationStateProvider;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
@@ -67,7 +67,7 @@ namespace ShadySoft.Blazor.SignInService
 
         public Task RefreshSignInAsync(string userName)
         {
-            var callback = new RefreshSignInCallback<TUser>(userName, this);            
+            var callback = new RefreshSignInCallback<TUser>(userName, this);
 
             var dto = new RefreshSignInDto() { UserName = userName, ExpirationUtc = DateTime.UtcNow + TimeSpan.FromSeconds(loginExpirationSeconds) };
             var protector = _dataProtectionProvider.CreateProtector("login");
@@ -107,7 +107,7 @@ namespace ShadySoft.Blazor.SignInService
 
         private string DecodeAuthResponse(string encodedResponse)
         {
-            var protector =_dataProtectionProvider.CreateProtector("response");
+            var protector = _dataProtectionProvider.CreateProtector("response");
 
             var decodedResponse = protector.Unprotect(encodedResponse);
 
@@ -136,7 +136,7 @@ namespace ShadySoft.Blazor.SignInService
             public void ClientSignInComplete(string encodedResponse)
             {
                 var result = _signInService.DecodeAuthResponse(encodedResponse);
-                
+
                 var signInResult = result switch
                 {
                     AuthServiceLoginResults.Succeeded => SignInResult.Success,

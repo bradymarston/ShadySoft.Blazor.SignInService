@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShadySoft.Blazor.SignInService.Services
 {
-    class UserServiceAccessor<TUser> : IUserServiceAccessor where TUser : class
+    internal class UserServiceAccessor<TUser> : IUserServiceAccessor where TUser : class
     {
         private readonly SignInManager<TUser> _signInManager;
         private readonly UserManager<TUser> _userManager;

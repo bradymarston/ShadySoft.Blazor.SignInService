@@ -3,11 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Brady Marston</Authors>
     <Company>ShadySoft</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>A wrapper for Asp.Net Identity for use with Blazor Server-Side</Description>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/bradymarston/ShadySoft.Blazor.SignInService.git</RepositoryUrl>
+    <PackageReleaseNotes>1.2.0 - Added an ISignInService interface to simplify dependency injection.</PackageReleaseNotes>
   </PropertyGroup>
 
 

@@ -22,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.AddScoped<SignInService<TUser>>();
+            services.AddScoped<ISignInService>(sp => sp.GetRequiredService<SignInService<TUser>>());
             services.AddScoped<IUserServiceAccessor, UserServiceAccessor<TUser>>();
 
             return services.AddIdentity<TUser, TRole>(setupAction);
